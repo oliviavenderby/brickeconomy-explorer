@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
+import plotly.express as px
 
 st.set_page_config(page_title="BrickEconomy Growth Stats", layout="centered")
 st.title("BrickEconomy Growth Statistics")
@@ -53,5 +54,20 @@ if input_text:
         mime="text/csv"
     )
 
-
+ # --- Show Price Trend Chart ---
+    if trend_rows:
+        trend_df = pd.DataFrame(trend_rows)
+        trend_df["Date"] = pd.to_datetime(trend_df["Date"])
+        fig = px.line(
+            trend_df,
+            x="Date",
+            y="Price",
+            color="Set",
+            markers=True,
+            title="Price Trend for Each Set",
+            labels={"Price": "Price (USD)", "Date": "Date"}
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No price trend data available for any of the sets.")
 
