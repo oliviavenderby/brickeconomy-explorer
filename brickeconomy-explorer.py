@@ -73,7 +73,7 @@ try:
         price_df = pd.DataFrame(price_events)
         price_df["date"] = pd.to_datetime(price_df["date"])
         fig = px.line(price_df, x="date", y="value", markers=True,
-                      title="Price Trend: The last 12 interesting ",
+                      title="Price Trend: The last 12 interesting price events that put various pressure on price.",
                       labels={"value": f"Price ({data.get('currency', 'USD')})", "date": "Date"})
         st.plotly_chart(fig, use_container_width=True)
     else:
