@@ -34,6 +34,14 @@ if input_text:
                 "Growth Last 12 Mo (%)": data.get("rolling_growth_12months", "N/A")
             })
 
+         # Collect price trend data
+         for event in data.get("price_events_new", []):
+                trend_rows.append({
+                        "Set": name or set_number,
+                        "Date": event["date"],
+                        "Price": event["value"]
+                })
+        
         except Exception as e:
             growth_data.append({
                 "Set": set_number,
