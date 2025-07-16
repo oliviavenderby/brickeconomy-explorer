@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 
 st.set_page_config(page_title="BrickEconomy Explorer", layout="centered")
-st.title("ReUseBricks BrickEconomy Explorer")
+st.title("BrickEconomy Explorer")
 
 # --- USER INPUT ---
 set_number = st.text_input("Enter LEGO Set Number (e.g. 10236-1)")
