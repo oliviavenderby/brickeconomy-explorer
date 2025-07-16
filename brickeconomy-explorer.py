@@ -1,6 +1,6 @@
 import requests
 
-url = "https://www.brickeconomy.com/api/v1/set/30687"
+url = "https://www.brickeconomy.com/api/v1/set/10226"
 headers = {
     "accept": "application/json",
     "x-apikey": "a6f1f7a7-aa75-4126-bba3-b6e10a7afda6",
