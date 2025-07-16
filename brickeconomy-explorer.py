@@ -4,10 +4,10 @@ import pandas as pd
 import plotly.express as px
 
 st.set_page_config(page_title="BrickEconomy Explorer", layout="centered")
-st.title("🧱 ReUseBricks BrickEconomy Explorer")
+st.title("ReUseBricks BrickEconomy Explorer")
 
 # --- USER INPUT ---
-set_number = st.text_input("Enter LEGO Set Number (e.g. 10236-1)", value="10236-1")
+set_number = st.text_input("Enter LEGO Set Number (e.g. 10236-1)")
 
 # --- API CALL ---
 url = f"https://www.brickeconomy.com/api/v1/set/{set_number}"
@@ -62,9 +62,10 @@ try:
         "Currency": data.get("currency")
     }
 
-    df = pd.DataFrame(table_data.items(), columns=["Field", "Value"])
-    st.subheader(f"📋 Set Details for {data.get('name')}")
-    st.table(df)
+    st.markdown("### Set Details")
+    for field, value in table_data.items():
+        st.markdown(f"**{field}**: {value}")
+
 
     # --- PRICE CHART (NEW) ---
     price_events = data.get("price_events_new", [])
@@ -72,14 +73,14 @@ try:
         price_df = pd.DataFrame(price_events)
         price_df["date"] = pd.to_datetime(price_df["date"])
         fig = px.line(price_df, x="date", y="value", markers=True,
-                      title="📈 New Price Trend",
+                      title="Price Trend: The last 12 interesting ",
                       labels={"value": f"Price ({data.get('currency', 'USD')})", "date": "Date"})
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("No price trend data available for this set.")
 
 except requests.exceptions.RequestException as e:
-    st.error(f"❌ API request failed: {e}")
+    st.error(f"API request failed: {e}")
 
 
 
