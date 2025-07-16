@@ -1,47 +1,58 @@
 import streamlit as st
 import requests
-import json
+import pandas as pd
 
-st.set_page_config(page_title="BrickEconomy Debug", layout="wide")
-st.title("🧱 BrickEconomy Set Debugger")
+st.set_page_config(page_title="BrickEconomy Explorer", layout="wide")
+st.title("BrickEconomy Explorer")
 
 # Hardcoded for testing
-url = "https://www.brickeconomy.com/api/v1/set/30687"
+set_number = "10236-1"
+url = "https://www.brickeconomy.com/api/v1/set/{set_number}"
 headers = {
     "accept": "application/json",
     "x-apikey": "a6f1f7a7-aa75-4126-bba3-b6e10a7afda6",
     "User-Agent": "ReUseBot/1.0"
 }
 
-try:
-    response = requests.get(url, headers=headers, timeout=10)
-    st.markdown(f"### Response Status Code: `{response.status_code}`")
+response = requests.get(url, headers=headers)
+if response.status_code == 200:
+    raw = response.json()
+    data = raw.get("data", {})
 
-    if response.status_code == 200:
-        data = response.json()
-        
-        # Full JSON output
-        st.markdown("### Full API Response (Raw JSON):")
-        st.json(data)
+    # Flatten and rename relevant fields
+    table_data = {
+        "Set Number": data.get("set_number"),
+        "Name": data.get("name"),
+        "Theme": data.get("theme"),
+        "Subtheme": data.get("subtheme"),
+        "Year": data.get("year"),
+        "Retired": data.get("retired"),
+        "Pieces": data.get("pieces_count"),
+        "Minifigs Count": data.get("minifigs_count"),
+        "Minifigs": ", ".join(data.get("minifigs", [])),
+        "Availability": data.get("availability"),
+        "Retail Price (US)": data.get("retail_price_us"),
+        "Retail Price (UK)": data.get("retail_price_uk"),
+        "Retail Price (EU)": data.get("retail_price_eu"),
+        "Retail Price (AU)": data.get("retail_price_au"),
+        "Retail Price (CA)": data.get("retail_price_ca"),
+        "Current Value (New)": data.get("current_value_new"),
+        "Current Value (Used)": data.get("current_value_used"),
+        "Used Value Range": f"{data.get('current_value_used_low')} - {data.get('current_value_used_high')}",
+        "Forecast (2yr)": data.get("forecast_value_new_2_years"),
+        "Forecast (5yr)": data.get("forecast_value_new_5_years"),
+        "Growth Last Year (%)": data.get("rolling_growth_lastyear"),
+        "Growth Last 12 Mo (%)": data.get("rolling_growth_12months"),
+        "Released": data.get("released_date"),
+        "Retired Date": data.get("retired_date"),
+        "EAN": data.get("ean"),
+        "UPC": data.get("upc"),
+        "Currency": data.get("currency")
+    }
 
-        # Only display known fields safely
-        st.markdown("### Key Fields:")
-        st.write("**Name:**", data.get("name", "N/A"))
-        st.write("**Theme:**", data.get("theme", "N/A"))
-        st.write("**Year:**", data.get("year", "N/A"))
-        st.write("**New Price (USD):**", data.get("price_new", {}).get("usd", "N/A"))
-        st.write("**Used Price (USD):**", data.get("price_used", {}).get("usd", "N/A"))
+    df = pd.DataFrame(table_data.items(), columns=["Field", "Value"])
+    st.table(df)
 
-        # Safe image load
-        image_url = data.get("image_url")
-        if image_url:
-            st.image(image_url, caption=data.get("name"), use_column_width=True)
-        else:
-            st.warning("No image URL found.")
-
-    else:
-        st.error(f"❌ API Error: {response.status_code} - {response.text}")
-
-except requests.exceptions.RequestException as e:
-    st.error(f"❌ Request failed: {e}")
+else:
+    st.error(f"API returned {response.status_code}: {response.text}")
 
