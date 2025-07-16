@@ -1,4 +1,4 @@
 streamlit
 requests
-requests_oauthlib
+plotly
 pandas
