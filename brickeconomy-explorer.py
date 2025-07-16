@@ -4,10 +4,9 @@ import pandas as pd
 
 st.set_page_config(page_title="BrickEconomy Growth Stats", layout="centered")
 st.title("BrickEconomy Growth Statistics")
-st.subheader("Input LEGO Set Numbers (comma-separated) to extract growth statistics from BrickEconomy")
 
 # --- User Input ---
-input_text = st.text_input("Enter LEGO Set Numbers (e.g. 10236-1, 75192-1)")
+input_text = st.text_input("Enter LEGO Set Numbers (e.g. 10236-1, 75192-1) to extract growth statistics from BrickEconomy.")
 
 # --- API Setup ---
 headers = {
@@ -43,7 +42,6 @@ if input_text:
             })
 
     df = pd.DataFrame(growth_data)
-    st.markdown("### Growth Comparison")
     st.dataframe(df, use_container_width=True)
 
     # --- CSV Export Button ---
