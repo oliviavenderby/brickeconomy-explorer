@@ -36,13 +36,6 @@ if input_text:
                 "Growth Last 12 Mo (%)": data.get("rolling_growth_12months", "N/A")
             })
 
-            # --- Collect price trend data ---
-            for event in data.get("price_events_new", []):
-                trend_rows.append({
-                    "Set": name or set_number,
-                    "Date": event["date"],
-                    "Price": event["value"]
-                })
 
         except Exception as e:
             growth_data.append({
@@ -64,22 +57,4 @@ if input_text:
         file_name="lego_growth_stats.csv",
         mime="text/csv"
     )
-
-    # --- Show Price Trend Chart ---
-    if trend_rows:
-        trend_df = pd.DataFrame(trend_rows)
-        trend_df["Date"] = pd.to_datetime(trend_df["Date"])
-        fig = px.line(
-            trend_df,
-            x="Date",
-            y="Price",
-            color="Set",
-            markers=True,
-            title="Price Trend for Each Set",
-            labels={"Price": "Price (USD)", "Date": "Date"}
-        )
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("No price trend data available for any of the sets.")
-
 
