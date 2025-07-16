@@ -4,11 +4,11 @@ import requests
 API_KEY = "a6f1f7a7-aa75-4126-bba3-b6e10a7afda6"
 
 def get_set_data(set_number):
-    url = f"https://www.brickeconomy.com/api/v1/set?number={set_number}"
+    url = f"https://www.brickeconomy.com/api/v1/set/{set_number}"
     headers = {
-        "Accept": "application/json",
-        "User-Agent": "ReUseBot/1.0",
-        "x-apikey": API_KEY
+        "accept": "application/json",
+        "x-apikey": API_KEY,
+        "User-Agent": "ReUseBot/1.0"
     }
     try:
         response = requests.get(url, headers=headers, timeout=10)
