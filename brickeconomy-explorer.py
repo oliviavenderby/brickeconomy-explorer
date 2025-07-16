@@ -2,24 +2,36 @@ import streamlit as st
 import requests
 import pandas as pd
 
-st.set_page_config(page_title="BrickEconomy Explorer", layout="wide")
-st.title("BrickEconomy Explorer")
+st.set_page_config(page_title="BrickEconomy Set Info", layout="centered")
+st.title("🧱 BrickEconomy Set Explorer")
 
-# Hardcoded for testing
 set_number = "10236-1"
-url = "https://www.brickeconomy.com/api/v1/set/{set_number}"
+url = f"https://www.brickeconomy.com/api/v1/set/{set_number}"
 headers = {
     "accept": "application/json",
     "x-apikey": "a6f1f7a7-aa75-4126-bba3-b6e10a7afda6",
     "User-Agent": "ReUseBot/1.0"
 }
 
-response = requests.get(url, headers=headers)
-if response.status_code == 200:
-    raw = response.json()
-    data = raw.get("data", {})
+try:
+    response = requests.get(url, headers=headers, timeout=10)
+    st.markdown(f"**Status Code:** `{response.status_code}`")
 
-    # Flatten and rename relevant fields
+    # Try parsing JSON safely
+    try:
+        raw = response.json()
+    except ValueError:
+        st.error("❌ Response is not valid JSON.")
+        st.text("Raw response text:")
+        st.text(response.text)
+        st.stop()
+
+    data = raw.get("data", {})
+    if not data:
+        st.warning("API returned no data.")
+        st.stop()
+
+    # Flatten fields
     table_data = {
         "Set Number": data.get("set_number"),
         "Name": data.get("name"),
@@ -53,6 +65,7 @@ if response.status_code == 200:
     df = pd.DataFrame(table_data.items(), columns=["Field", "Value"])
     st.table(df)
 
-else:
-    st.error(f"API returned {response.status_code}: {response.text}")
+except requests.exceptions.RequestException as e:
+    st.error(f"❌ Request failed: {e}")
+
 
