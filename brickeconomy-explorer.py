@@ -25,6 +25,9 @@ if input_text:
         try:
             response = requests.get(url, headers=headers, timeout=10)
             data = response.json().get("data", {})
+            st.text(f"{set_number} → raw growth: "
+                    f"{data.get('rolling_growth_lastyear')} / {data.get('rolling_growth_12months')}")
+
 
             growth_data.append({
                 "Set": set_number,
