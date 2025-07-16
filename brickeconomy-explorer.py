@@ -1,6 +1,3 @@
-import streamlit as st
-import requests
-
 import requests
 
 url = "https://www.brickeconomy.com/api/v1/set/30687"
@@ -10,7 +7,17 @@ headers = {
     "User-Agent": "ReUseBot/1.0"
 }
 
-response = requests.get(url, headers=headers)
-print(response.status_code)
-print(response.json())
+try:
+    response = requests.get(url, headers=headers, timeout=10)
+    print("Status code:", response.status_code)
+    print("Response text:", response.text)
+
+    if response.status_code == 200:
+        data = response.json()
+        print("✅ Success:", data)
+    else:
+        print("❌ Failed:", response.status_code)
+
+except requests.exceptions.RequestException as e:
+    print("❌ Request error:", e)
 
