@@ -1,11 +1,15 @@
 import streamlit as st
 import requests
 import pandas as pd
+import plotly.express as px
 
-st.set_page_config(page_title="BrickEconomy Set Info", layout="centered")
-st.title("🧱 BrickEconomy Set Explorer")
+st.set_page_config(page_title="BrickEconomy Explorer", layout="centered")
+st.title("🧱 ReUseBricks BrickEconomy Explorer")
 
-set_number = "10236-1"
+# --- USER INPUT ---
+set_number = st.text_input("Enter LEGO Set Number (e.g. 10236-1)", value="10236-1")
+
+# --- API CALL ---
 url = f"https://www.brickeconomy.com/api/v1/set/{set_number}"
 headers = {
     "accept": "application/json",
@@ -15,23 +19,20 @@ headers = {
 
 try:
     response = requests.get(url, headers=headers, timeout=10)
-    st.markdown(f"**Status Code:** `{response.status_code}`")
 
-    # Try parsing JSON safely
     try:
         raw = response.json()
     except ValueError:
         st.error("❌ Response is not valid JSON.")
-        st.text("Raw response text:")
         st.text(response.text)
         st.stop()
 
     data = raw.get("data", {})
     if not data:
-        st.warning("API returned no data.")
+        st.warning("No data returned for that set number.")
         st.stop()
 
-    # Flatten fields
+    # --- INFO TABLE ---
     table_data = {
         "Set Number": data.get("set_number"),
         "Name": data.get("name"),
@@ -42,7 +43,6 @@ try:
         "Pieces": data.get("pieces_count"),
         "Minifigs Count": data.get("minifigs_count"),
         "Minifigs": ", ".join(data.get("minifigs", [])),
-        "Availability": data.get("availability"),
         "Retail Price (US)": data.get("retail_price_us"),
         "Retail Price (UK)": data.get("retail_price_uk"),
         "Retail Price (EU)": data.get("retail_price_eu"),
@@ -63,9 +63,23 @@ try:
     }
 
     df = pd.DataFrame(table_data.items(), columns=["Field", "Value"])
+    st.subheader(f"📋 Set Details for {data.get('name')}")
     st.table(df)
 
+    # --- PRICE CHART (NEW) ---
+    price_events = data.get("price_events_new", [])
+    if price_events:
+        price_df = pd.DataFrame(price_events)
+        price_df["date"] = pd.to_datetime(price_df["date"])
+        fig = px.line(price_df, x="date", y="value", markers=True,
+                      title="📈 New Price Trend",
+                      labels={"value": f"Price ({data.get('currency', 'USD')})", "date": "Date"})
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No price trend data available for this set.")
+
 except requests.exceptions.RequestException as e:
-    st.error(f"❌ Request failed: {e}")
+    st.error(f"❌ API request failed: {e}")
+
 
 
